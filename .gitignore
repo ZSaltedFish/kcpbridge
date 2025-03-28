@@ -1,0 +1,35 @@
+# 构建输出目录
+build/
+bin/
+out/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# 编译产物
+*.o
+*.obj
+*.so
+*.dll
+*.lib
+*.a
+*.exe
+*.dylib
+
+# 日志和临时文件
+*.log
+*.tmp
+*.swp
+*.bak
+
+# IDE 文件（可选）
+.vscode/
+.idea/
+*.sdf
+*.suo
+*.user
+*.VC.db
+
+# macOS 系统文件
+.DS_Store
