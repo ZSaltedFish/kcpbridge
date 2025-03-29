@@ -4,11 +4,10 @@
 
 namespace kcp_bridge
 {
-    KcpObject::KcpObject(const std::string& ip, int port)
+    KcpObject::KcpObject(uint64_t id, const std::string& ip, int port) : _ip(ip), _port(port), _kcpObjectId(id)
     {
         _connection = new Connection(ip, port);
         _connectionLive = new ConnectionLive();
-        _socketId = _connection->GetSocket();
 
         _disposeReason = KcpDisposeReason::Error;
         _isDisposed = false;
@@ -56,6 +55,12 @@ namespace kcp_bridge
         }
     }
 
+    int KcpObject::SendUdp(const std::vector<uint8_t>& data)
+    {
+		ThrowIfDisposed();
+		return SendDataWithUdp(Socket, _ip, _port, data);
+	}
+
     bool KcpObject::ReceiveHelloCheck(const std::vector<uint8_t>& data)
     {
         uint64_t helloTime = GetHelloPackageTime(data);
@@ -86,7 +91,7 @@ namespace kcp_bridge
         if (_connectionLive->IsHeartBeat())
         {
             auto heartBeatPackage = _connectionLive->GetHeartBeatPackage();
-            _connection->SendUdpWithoutKcp(heartBeatPackage);
+            SendUdp(heartBeatPackage);
             _connectionLive->UpdateLastSendTime();
         }
 
@@ -105,5 +110,13 @@ namespace kcp_bridge
             ikcp_update(_connection->GetKcp(), current);
             _kcpUpdateCount = ikcp_check(_connection->GetKcp(), current);
 		}
+    }
+
+    void KcpObject::Receive(const std::vector<uint8_t>& data)
+    {
+        if (ReceiveHelloCheck(data)) return;
+        if (ReceiveHeartBeatCheck(data)) return;
+
+        _connection->Input(data);
     }
 }

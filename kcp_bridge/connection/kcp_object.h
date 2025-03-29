@@ -21,7 +21,6 @@ namespace kcp_bridge
         ConnectionLive* _connectionLive;
         bool _isDisposed = false;
         bool _isConnected = false;
-        socket_t _socketId;
         KcpDisposeReason _disposeReason;
         uint64_t _kcpUpdateCount = 0;
 
@@ -29,27 +28,30 @@ namespace kcp_bridge
         inline void ThrowIfDisposed() const { if (_isDisposed) throw std::runtime_error("KcpObject is disposed"); }
         void UpdateLive();
         void UpdateKcp();
-
+        bool ReceiveHelloCheck(const std::vector<uint8_t>& data);
+        bool ReceiveHeartBeatCheck(const std::vector<uint8_t>& data);
+        std::string _ip;
+        int _port;
+        uint64_t _kcpObjectId;
     public:
-        KcpObject(const std::string& ip, int port);
+        KcpObject(uint64_t id, const std::string& ip, int port);
         ~KcpObject();
         void Send(const std::vector<uint8_t>& data);
 
-        inline void SendUdp(const std::vector<uint8_t>& data)
-        {
-            ThrowIfDisposed();
-            _connection->SendUdpWithoutKcp(data);
-        }
+        int SendUdp(const std::vector<uint8_t>& data);
         void Dispose(KcpDisposeReason reason);
         
         void Update();
-        bool ReceiveHelloCheck(const std::vector<uint8_t>& data);
-        bool ReceiveHeartBeatCheck(const std::vector<uint8_t>& data);
+        void Receive(const std::vector<uint8_t>& data);
 
         inline void SetHeartBeatTimeMs(uint64_t time) { _connectionLive->SetHeartBeatTimeMs(time); }
         inline void SetDisconnectTimeoutMs(uint64_t timeout) { _connectionLive->SetDisconnectTimeoutMs(timeout); }
-        inline socket_t GetSocketId() const { return _socketId; }
-        inline int SendConnectPackage() { return _connection->SendUdpWithoutKcp(HELLO_BYTE); }
+        inline int SendConnectPackage() { return SendUdp(HELLO_BYTE); }
         inline KcpDisposeReason GetDisposeReason() const { return _disposeReason; }
+        inline std::string GetIp() const { return _ip; }
+        inline int GetPort() const { return _port; }
+        inline uint64_t GetKcpObjectId() const { return _kcpObjectId; }
+        inline bool IsConnected() const { return _isConnected; }
+        inline bool IsDisposed() const { return _isDisposed; }
     };
 }

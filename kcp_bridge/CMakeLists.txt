@@ -11,7 +11,8 @@ add_library(${PROJECT_NAME} STATIC
     connection/kcp_object.cpp
     connection/kcp_object_tools.h
     connection/kcp_object_tools.cpp
+    connection/kcp_manager.h
 
     Tools/tools.h
     Tools/tools.cpp
-)
+ "connection/kcp_manager.cpp")
