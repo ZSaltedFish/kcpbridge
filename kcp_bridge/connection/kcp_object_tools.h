@@ -10,4 +10,5 @@ namespace kcp_bridge
     // The first 5 bytes are the "Hello" bytes, and the rest is the time
     // The time is stored as a uint64_t
     uint64_t GetHelloPackageTime(const std::vector<uint8_t>& data);
+    
 }

@@ -14,12 +14,13 @@ namespace kcp_bridge
 
     KcpObject::~KcpObject()
     {
-        Dispose();
+        Dispose(KcpDisposeReason::Error);
     }
     
-    void KcpObject::Dispose()
+    void KcpObject::Dispose(KcpDisposeReason reason)
     {
         if (_isDisposed) return;
+        _disposeReason = reason;
         if (_connection)
         {
             delete _connection;
@@ -33,6 +34,11 @@ namespace kcp_bridge
         }
         _isConnected = false;
         _isDisposed = true;
+
+        if (_disposeCallback)
+        {
+            _disposeCallback(*this);
+        }
     }
 
     void KcpObject::Send(const std::vector<uint8_t>& data)
@@ -48,12 +54,38 @@ namespace kcp_bridge
         }
     }
 
-    bool KcpObject::ReceiveHelloCheck(std::vector<uint8_t>& data)
+    bool KcpObject::ReceiveHelloCheck(const std::vector<uint8_t>& data)
     {
         uint64_t helloTime = GetHelloPackageTime(data);
         if (helloTime == 0) return false;
         _connectionLive->UpdateLastReceiveTime();
         _isConnected = true;
         return true;
+    }
+
+    bool KcpObject::ReceiveHeartBeatCheck()
+
+    void KcpObject::Update()
+    {
+        if (_isDisposed) return;
+        UpdateLive();
+        UpdateKcp();
+    }
+
+    void KcpObject::UpdateLive()
+    {
+        if (!_isConnected) return;
+        if (_connectionLive->IsHeartBeat())
+        {
+            auto heartBeatPackage = _connectionLive->GetHeartBeatPackage();
+            _connection->SendUdpWithoutKcp(heartBeatPackage);
+            _connectionLive->UpdateLastSendTime();
+        }
+
+        if (_connectionLive->IsDisconnected())
+        {
+            std::cerr << "KcpObject is disconnected." << std::endl;
+            Dispose(KcpDisposeReason::Timeout);
+        }
     }
 }
