@@ -79,4 +79,26 @@ namespace kcp_bridge
             return;
         }
     }
+
+    int Connection::SendUdpWithoutKcp(const std::vector<uint8_t>& data) const
+    {
+        if (data.empty()) return 0;
+        
+        auto ip = (char*)_ip.c_str();
+        auto port = _port;
+        auto len = data.size();
+        auto buf = (char*)data.data();
+
+        sockaddr_in addr;
+        addr.sin_family = AF_INET;
+        addr.sin_port = htons(port);
+        addr.sin_addr.s_addr = inet_addr(ip);
+        int ret = sendto(_socket, buf, len, 0, (sockaddr*)&addr, sizeof(addr));
+        if (ret < 0)
+        {
+            std::cerr << "sendto error: " << ret << std::endl;
+            return -1;
+        }
+        return 0;
+    }
 }

@@ -42,5 +42,6 @@ namespace kcp_bridge
         ~Connection();
         socket_t GetSocket() const { return _socket; }
         void Send(const std::vector<uint8_t>& data) const;
+        int SendUdpWithoutKcp(const std::vector<uint8_t>& data) const;
     };
 }
