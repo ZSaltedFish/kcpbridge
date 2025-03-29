@@ -3,7 +3,7 @@
 #include <functional>
 #include "connection.h"
 #include "connection_live.h"
-#include "kcp_object_start_tools.h"
+#include "kcp_object_tools.h"
 
 namespace kcp_bridge
 {
@@ -23,6 +23,7 @@ namespace kcp_bridge
         bool _isConnected = false;
         socket_t _socketId;
         KcpDisposeReason _disposeReason;
+        uint64_t _kcpUpdateCount = 0;
 
         std::function<void(KcpObject&)> _disposeCallback;
         inline void ThrowIfDisposed() const { if (_isDisposed) throw std::runtime_error("KcpObject is disposed"); }

@@ -1,6 +1,6 @@
 project(kcp_bridge)
 
-add_library(${PROJECT_NAME} SHARED
+add_library(${PROJECT_NAME} STATIC
     ${KCP_SOURCE}
     kcp_bridge.cpp
     connection/connection.cpp

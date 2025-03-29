@@ -41,6 +41,8 @@ namespace kcp_bridge
         Connection(const std::string ip, int port);
         ~Connection();
         socket_t GetSocket() const { return _socket; }
+
+        inline ikcpcb* GetKcp() const { return _kcp; }
         void Send(const std::vector<uint8_t>& data) const;
         int SendUdpWithoutKcp(const std::vector<uint8_t>& data) const;
     };

@@ -1,5 +1,6 @@
 #include <iostream>
 #include "kcp_object.h"
+#include "../Tools/tools.h"
 
 namespace kcp_bridge
 {
@@ -9,6 +10,7 @@ namespace kcp_bridge
         _connectionLive = new ConnectionLive();
         _socketId = _connection->GetSocket();
 
+        _disposeReason = KcpDisposeReason::Error;
         _isDisposed = false;
     }
 
@@ -63,7 +65,13 @@ namespace kcp_bridge
         return true;
     }
 
-    bool KcpObject::ReceiveHeartBeatCheck()
+    bool KcpObject::ReceiveHeartBeatCheck(const std::vector<uint8_t>& data)
+    {
+        uint64_t heartBeatTime = GetHelloPackageTime(data);
+        if (heartBeatTime == 0) return false;
+        _connectionLive->UpdateLastReceiveTime();
+        return true;
+    }
 
     void KcpObject::Update()
     {
@@ -87,5 +95,15 @@ namespace kcp_bridge
             std::cerr << "KcpObject is disconnected." << std::endl;
             Dispose(KcpDisposeReason::Timeout);
         }
+    }
+
+    void KcpObject::UpdateKcp()
+    {
+        uint64_t current = GetTickCount64();
+        if (current > _kcpUpdateCount)
+        {
+            ikcp_update(_connection->GetKcp(), current);
+            _kcpUpdateCount = ikcp_check(_connection->GetKcp(), current);
+		}
     }
 }
