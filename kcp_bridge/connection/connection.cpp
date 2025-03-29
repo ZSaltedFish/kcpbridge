@@ -1,22 +1,10 @@
 #include <chrono>
 #include <iostream>
 #include "connection.h"
+#include "../Tools/tools.h"
 
 namespace kcp_bridge
 {
-    static int _socketId = -1;
-    static int GetSocketId()
-    {
-        return ++_socketId;
-    }
-    
-    static uint64_t GetTickCount64()
-    {
-        auto now = std::chrono::steady_clock::now();
-        auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
-        return static_cast<uint64_t>(ms);
-    }
-
     Connection::Connection(const std::string ip, int port)
     {
         _ip = ip;

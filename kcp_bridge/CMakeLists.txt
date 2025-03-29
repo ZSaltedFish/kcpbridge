@@ -5,4 +5,9 @@ add_library(${PROJECT_NAME} SHARED
     kcp_bridge.cpp
     connection/connection.cpp
     connection/connection.h
+    connection/connection_live.h
+    connection/connection_live.cpp
+
+    Tools/tools.h
+    Tools/tools.cpp
 )

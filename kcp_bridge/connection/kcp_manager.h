@@ -1,5 +1,6 @@
 #include <vector>
 #include <thread>
+#include <map>
 #include "connection.h"
 
 namespace kcp_bridge
@@ -7,7 +8,6 @@ namespace kcp_bridge
     class KcpManager
     {
     private:
-        std::vector<Connection> _connections;
         KcpManager() = default;
         ~KcpManager() = default;
 
